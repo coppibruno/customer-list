@@ -1,38 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import * as S from './styles';
 
 import { Link } from 'react-router-dom';
 
-
-import api from '../../services/api';
-import isConnected from '../../utils/isConnected';
-
-
-function Header({ clickNotification }) {
-
-  const [lateCount, setLateCount] = useState();
-
-  async function lateVerify(){
-    await api.get(`/task/filter/late/${isConnected}`)
-    .then(response => {
-      
-      setLateCount(response.data.length)
-
-    }).catch(error => {
-
-      console.error(error);
-
-    });
-  }
-
-  useEffect( () => {
-    lateVerify();
-  });
-
-  async function Logout(){
-    localStorage.removeItem('@todo/macaddress');
-    window.location.reload();
-  }
+function Header() {
 
   return (
     <S.Container>
@@ -44,11 +15,11 @@ function Header({ clickNotification }) {
 
             <span className="dividir"></span>
             
-            <Link to="/task">ADICIONAR CLIENTE</Link>
+            <Link to="/">ADICIONAR CLIENTE</Link>
 
             <span className="dividir"></span>
 
-            <input type="button" onClick={Logout} value="SAIR" />
+            <Link to="/">SAIR</Link>
 
         </S.RightSide>
     </S.Container> 

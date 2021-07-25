@@ -1,87 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import {Link, Redirect} from 'react-router-dom';
 import * as S from './styles';
 
 import api from '../../services/api';
-import isConnected from '../../utils/isConnected';
 
 //NOSSOS COMPONENTES
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import FilterCard from '../../components/FilterCard';
-import TaskCard from '../../components/TaskCard';
+import Spinner from '../../components/Spinner';
+
+
+import { DataGrid } from '@material-ui/data-grid';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
+import Alert from '@material-ui/lab/Alert';
+import Toast from '../../components/Toast'
+
+import { makeStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+import moment from 'moment';
 
 function Home() {
-  
-  const [filterActived, setFilterActived] = useState('all');
-  const [tasks, setTasks] = useState([]);
-  const [redirect, setRedirect] = useState(false);
 
-  async function getCustomers(){
-    await api.get(`/task/filter/${filterActived}/${isConnected}`)
+  const [filterName, setFilterName] = useState(null);
+  const [rows, setRows] = useState([]);
+  const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const dataColumns = [
+    { field: 'id', headerName: 'ID', width: 120 },
+    { field: 'name', headerName: 'Nome', width: 200 },
+    { field: 'value', headerName: 'Valor', width: 150 },
+    { field: 'since', headerName: 'Desde', type: 'date', width: 150 }
+  ];
+  async function getCustomers(filter){
+    let last_endpoint = '';
+    
+    if (filter){
+
+      if (!filterName){
+        Toast({
+          type: 'info',
+          title: 'É necessário preencher um valor no campo de busca'
+        })
+        return false;
+      }
+
+       last_endpoint = `filter/${filterName}`;
+    }
+    
+    await api.get(`/customers/${last_endpoint}`)
     .then(response => {
+        
+        setColumns(dataColumns);
 
-      setTasks( response.data );
+        const result = response.data;
+        var customerList = result.map(function (customer) {
+          
+          customer.value = customer.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
+          customer.since = moment(customer.since).format('DD/MM/YYYY');
+          return customer;
+        });
+        
+        setRows(customerList);
 
+        setLoading(false);
+      
     }).catch(error => {
-
-      console.error(error);
+      const msg = !!error.response.data.msg ? error.response.data.msg : 'Ocorreu um erro na busca de clientes :(';
+      Toast({
+        type: 'error',
+        title: msg
+      })
+      
 
     });
+
   }
 
-
-
-  function Notification(){
-    setFilterActived('late');
-  }
-
-  //AO RECARREGAR A TELA OU O ESTADO FILTERACTIVED MUDAR CHAMA ESSE BLOCO
   useEffect(() => {
-    getCustomers();
-  }, [filterActived]);
+    getCustomers(false);
+  }, []);
 
   return (
     <S.Container>
-      <Header clickNotification={Notification} />
+      <Header />
+
+      {loading &&
+        <Spinner />
+      }
 
       <S.FilterArea>
-
-        <button type="button" onClick={() => setFilterActived("all")}>
-          <FilterCard title="Todos" actived={filterActived == "all"}  />
-        </button>
-
-        <button type="button" onClick={() => setFilterActived("today")}>
-          <FilterCard title="Hoje" actived={filterActived == "today"}  />
-        </button>
-
-        <button type="button" onClick={() => setFilterActived("week")}>
-          <FilterCard title="Semana" actived={filterActived == "week"}  />
-        </button>
-
-        <button type="button"  onClick={() => setFilterActived("month")}>
-          <FilterCard title="Mês" actived={filterActived == "month"} />
-        </button>
-
-        <button type="button" onClick={() => setFilterActived("year")}>
-          <FilterCard title="Ano" actived={filterActived == "year"}  />
-        </button>
-        
+        <TextField onChange={e => setFilterName(e.target.value)} id="standard-basic" label="Busque pelo nome" />
+        <Button onClick={() => getCustomers(true)} variant="contained" color="primary">
+          OK
+        </Button>
+        <Button onClick={() => getCustomers(false)} variant="contained" >
+          <RotateLeftIcon />
+        </Button>
       </S.FilterArea>
 
       <S.Title>
-        <h3>{ filterActived === 'late' ? "TAREFAS ATRASADAS" : "TAREFAS"}</h3>
+        <h3>CLIENTES INADIMPLENTES</h3>
       </S.Title>
 
-      <S.Content>
-        {
-          tasks.map(t => (
-            <Link to={`/task/${t._id}`}>
-              <TaskCard type={t.type} title={t.tittle} when={t.when} done={t.done}/>
-            </Link>
-          ))
-        }
-      </S.Content>
+      {loading && 
+        <p style={{textAlign: 'center'}}>Buscando clientes da base de dados. Por favor, aguarde :)</p>
+      }
+      
+      { rows.length > 0 && columns.length > 0 && 
+      <S.ContainerCustomers>
+        <div style={{ height: 600, width: 650 }}>
+          <DataGrid rows={rows} columns={columns} pageSize={10} />
+        </div>
+      </S.ContainerCustomers>
+      }
+      
 
       <Footer/>
     </S.Container>

@@ -8,12 +8,11 @@ export const FilterArea = styled.div`
     width:100%;
     display:flex;
     flex-wrap: wrap;
-    justify-content: space-around;
-    margin: 20px;
+    justify-content: center;
+    margin-top: 50px;
 
-    button{
-        background: none;
-        border: none;
+    button {
+        margin-left: 20px;
     }
 `
 
@@ -35,7 +34,7 @@ export const Title = styled.div`
     border-bottom: 1px solid #20295F;
     display:flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
     
     h3{
         color: #20295F;
@@ -44,5 +43,13 @@ export const Title = styled.div`
         background: #FFF;
         padding: 0px 20px;
     }
-
 `
+
+export const ContainerCustomers = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 20px;
+`
+
+
