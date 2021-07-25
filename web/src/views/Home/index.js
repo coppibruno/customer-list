@@ -57,7 +57,7 @@ function Home() {
 
         const result = response.data;
         var customerList = result.map(function (customer) {
-          
+          customer.id = parseInt(customer.id);
           customer.value = customer.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
           customer.since = moment(customer.since).format('DD/MM/YYYY');
           return customer;

@@ -1,3 +1,4 @@
+const CustomerController = require('../controller/Customer');
 
 const CustomerValidation = async (req, res, next) => {
 
@@ -12,6 +13,13 @@ const CustomerValidation = async (req, res, next) => {
 
     if (!since)
         return res.status(400).json( { error: 'since is required'} );    
+
+    if (!req.body.id){
+        //increment id for table in frontend
+        const id = await CustomerController.getLastInsertId();
+        req.body.id = id + 1;
+        
+    }
 
     next();
     

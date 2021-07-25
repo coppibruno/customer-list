@@ -1,6 +1,5 @@
 const CustomerModel = require('../model/CustomerModel');
 
-
 class CustomerController {
 
     async create(req, res){
@@ -30,7 +29,7 @@ class CustomerController {
 
     async all (req, res){
 
-        await CustomerModel.find().sort('since')
+        await CustomerModel.find().sort('id')
         .then( response => {
             
             return res.status(200).json(response);
@@ -90,15 +89,14 @@ class CustomerController {
     }
 
     async getLastInsertId(){
-        await CustomerModel.find().sort({"_id" : -1}).limit(1)
-            .then( response => {
-                console.log('dentro', response[0]._id);
-                if(!!response[0]._id){
-                    return response[0]._id;
-                }
+        const result = await CustomerModel.find().sort({"_id": -1}).findOne()
 
-                return 0;
-        });
+        if (!result){
+            //first element
+            return 0;
+        };
+
+        return parseInt(result.id);
     }
 
     
