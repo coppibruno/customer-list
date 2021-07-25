@@ -31,8 +31,18 @@ function Home() {
   const dataColumns = [
     { field: 'id', headerName: 'ID', width: 120 },
     { field: 'name', headerName: 'Nome', width: 200 },
-    { field: 'value', headerName: 'Valor', width: 150 },
-    { field: 'since', headerName: 'Desde', type: 'date', width: 150 }
+    { field: 'value', headerName: 'Valor', width: 150,
+      valueFormatter: (params) => {
+        const valueFormatted = params.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
+        return valueFormatted;
+      } 
+    },
+    { field: 'since', headerName: 'Desde', type: 'date', width: 150,
+      valueFormatter: (params) => {
+        const valueFormatted = moment(params.value).format('DD/MM/YYYY')
+        return valueFormatted;
+      } 
+    } 
   ];
   async function getCustomers(filter){
     let last_endpoint = '';
@@ -58,8 +68,6 @@ function Home() {
         const result = response.data;
         var customerList = result.map(function (customer) {
           customer.id = parseInt(customer.id);
-          customer.value = customer.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
-          customer.since = moment(customer.since).format('DD/MM/YYYY');
           return customer;
         });
         
@@ -112,7 +120,7 @@ function Home() {
       { rows.length > 0 && columns.length > 0 && 
       <S.ContainerCustomers>
         <div style={{ height: 600, width: 650 }}>
-          <DataGrid rows={rows} columns={columns} pageSize={10} />
+          <DataGrid rows={rows} columns={columns} pageSize={10} disableSelectionOnClick={true} />
         </div>
       </S.ContainerCustomers>
       }
