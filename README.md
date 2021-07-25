@@ -1,3 +1,6 @@
+## Funcionamento da Aplicação em vídeo ##
+https://drive.google.com/file/d/1mnn6X62JBYU3Zgop0uVJJd47joUHI6bz/view?usp=sharing
+
 ## Como rodar a aplicação ##
 
 * Será necessário o mongodb rodando na porta padrão (27017). Para dev utilizei o docker:
